@@ -1,0 +1,63 @@
+Table mart_persons [headercolor: #1E69FD] {
+  internal_banner_id   integer [PK]
+  banner_id            varchar
+  legal_first_name     varchar
+  preferred_first_name varchar
+  middle_initial       varchar
+  last_name            varchar
+  is_confidential      varchar
+  uo_email_address     varchar
+  uo_email_type_desc   varchar
+  ma_phone_area        varchar
+  ma_phone_number      varchar
+  ma_phone_ext         varchar
+  ma_intl_access       varchar
+  ma_phone_type_desc   varchar
+  pr_phone_area        varchar
+  pr_phone_number      varchar
+  pr_phone_ext         varchar
+  pr_intl_access       varchar
+  pr_phone_type_desc   varchar
+  ma_address_line_1    varchar
+  ma_address_line_2    varchar
+  ma_address_line_3    varchar
+  ma_city              varchar
+  ma_state_code        varchar
+  ma_state_desc        varchar
+  ma_zip_code          varchar
+  ma_nation_code       varchar
+  ma_nation_desc       varchar
+  pr_address_line_1    varchar
+  pr_address_line_2    varchar
+  pr_address_line_3    varchar
+  pr_city              varchar
+  pr_state_code        varchar
+  pr_state_desc        varchar
+  pr_zip_code          varchar
+  pr_nation_code       varchar
+  pr_nation_desc       varchar
+
+}
+
+Table mart_student_term_level {
+  internal_banner_id integer [ref: < mart_persons.internal_banner_id, PK]
+  term_code    varchar
+  level_code   varchar
+  admit_term   varchar
+  major_1_code varchar
+  major_2_code varchar
+  major_3_code varchar
+  major_4_code varchar
+  major_1_desc varchar
+  major_2_desc varchar
+  major_3_desc varchar
+  major_4_desc varchar
+  minor_1_code varchar
+  minor_2_code varchar
+  minor_3_code varchar
+  minor_4_code varchar
+  minor_1_desc varchar
+  minor_2_desc varchar
+  minor_3_desc varchar
+  minor_4_desc varchar
+}

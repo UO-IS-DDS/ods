@@ -1,0 +1,21 @@
+version: 2
+
+exposures:
+
+  - name: student_detail
+    label: Cognos - Student Detail
+    type: application
+    maturity: low
+    url: https://dbdiagram.io/d/student_detail__exposure-65aa0c43ac844320ae41b443
+    description: >
+      Student Detail by term/level
+    tags: ['contract']
+
+    depends_on:
+      - ref('mart_student_term_level')
+      - ref('mart_persons')
+      - ref('con__registrar__student_data_report')
+
+    owner:
+      name: Information Services DDS
+      email: lampman@uoregon.edu

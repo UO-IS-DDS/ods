@@ -1,0 +1,53 @@
+name: 'ods'
+version: '1.0.0'
+config-version: 2
+ 
+profile: 'ods'
+
+model-paths:
+  - domains/my_folder/models
+  - domains/general/models
+  - domains/registrar/models
+analysis-paths:
+  - domains/my_folder/analyses
+  - domains/general/analyses
+  - domains/general/analyses
+test-paths: 
+  - domains/my_folder/tests
+  - domains/general/tests
+  - domains/general/tests
+seed-paths: 
+  - domains/my_folder/seeds
+  - domains/general/seeds
+  - domains/general/seeds
+macro-paths:
+  - domains/my_folder/macros
+  - domains/general/macros
+  - domains/general/macros
+snapshot-paths:
+  - domains/my_folder/snapshots
+  - domains/general/snapshots
+  - domains/general/snapshots
+docs-paths:
+  - domains/my_folder/docs
+  - domains/general/docs
+  - domains/general/docs
+asset-paths:
+  - domains/my_folder/assets
+  - domains/general/assets
+  - domains/general/assets
+
+clean-targets:
+  - "target"
+  - "dbt_packages"
+
+models:
+  ods:
+    staging:
+      +materialized: view
+    intermediate:
+      +materialized: view
+    mart:
+      +materialized: table
+    contracts:
+      +materialized: table

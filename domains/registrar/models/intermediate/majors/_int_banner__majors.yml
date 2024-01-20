@@ -1,0 +1,31 @@
+version: 2
+
+models:
+  - name: int_banner__majors
+    meta:
+      grain: "major_code"
+    access: private
+    config:
+      group: registrar
+      tags: ["banner_bug"]
+    description: "Banner major type"
+    columns:
+      - name: major_code
+        description: "Major code"
+        tests:
+          - not_null
+          - unique
+
+      - name: major_desc
+        description: "Major description"
+        tests:
+          - not_null
+
+      - name: dept_code
+        description: "Department code"
+        tests:
+          - not_null
+
+      - name: ods_surrogate_key
+        tests:
+          - unique

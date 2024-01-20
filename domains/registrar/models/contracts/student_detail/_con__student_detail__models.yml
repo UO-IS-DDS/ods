@@ -1,0 +1,28 @@
+version: 2
+
+models:
+  - name: con__registrar__student_data_report
+    meta:
+      grain: "banner_id, term_code, level_code"
+    access: protected
+    config:
+      group: registrar
+      tags: ["contract"]
+    description: "Student Data Report"
+    columns:
+      - name: banner_id
+        description: "External Banner ID"
+
+      - name: term_code
+        description: "Term code"
+
+      - name: level_code
+        description: "Level code"
+
+      - name: first_name
+        description: "First name"
+
+      - name: last_name
+        description: "Person last name"
+
+      - name: ods_surrogate_key

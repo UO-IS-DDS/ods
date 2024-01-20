@@ -1,0 +1,68 @@
+version: 2
+
+models:
+  - name: stg_banner__saturn__stvmajr
+    access: private
+    config:
+      group: registrar
+    description: "Banner major type"
+    columns:
+      - name: major_code
+        description: "Major code"
+
+      - name: major_desc
+        description: "Major description"
+
+      - name: dept_code
+        description: "Department code"
+
+      - name: is_major
+        description: "Major indicator"
+
+      - name: is_minor
+        description: "Minor indicator"
+
+  - name: stg_banner__saturn__sgbstdn
+    access: private
+    config:
+      group: registrar
+    description: "Banner general student record"
+    columns:
+      - name: internal_banner_id
+        description: "Internal Banner ID"
+
+      - name: term_code
+        description: "Term code"
+
+      - name: level_code
+        description: "Level code"
+
+      - name: admit_term
+        description: "Admit term"
+
+      - name: honors_college_ind
+        description: "Honors College indicator"
+
+      - name: major_1_code
+        description: "Major 1 code"
+
+      - name: major_2_code
+        description: "Major 2 code"
+
+      - name: major_3_code
+        description: "Major 3 code"
+
+      - name: major_4_code
+        description: "Major 4 code"
+
+      - name: minor_1_code
+        description: "Minor 1 code"
+
+      - name: minor_2_code
+        description: "Minor 2 code"
+
+      - name: minor_3_code
+        description: "Minor 3 code"
+
+      - name: minor_4_code
+        description: "Minor 4 code"

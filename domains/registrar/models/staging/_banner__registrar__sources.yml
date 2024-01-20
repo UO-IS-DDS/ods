@@ -1,0 +1,94 @@
+version: 2
+
+# Required: Alphabetized by Source Name, Table Name
+#           Empty line between Tables
+#           Table Descriptions
+#           dbt run-operation generate_base_model --args '{"source_name": "banner__saturn", "table_name": "spriden"}'
+#           Paste SQL in newly-created adjacent file: stg_banner__saturn__spriden.sql
+#           Coalesce NULLs, cast, rename, organize fields, explicit-alias columns for visual indexing
+#           dbt run-operation generate_model_yaml --args '{"model_names": ["stg_banner__saturn__spriden"]}'
+#           Paste YML into models.yml
+
+sources:
+
+  - name: banner__saturn
+    schema: banner
+    tables:
+
+      - name: sfbetrm
+        description: ""
+
+      - name: sfrstcr
+        description: ""
+
+      - name: sgbstdn
+        description: "Banner general student record"
+
+      - name: sgradvr
+        description: ""
+
+      - name: sgrchrt
+        description: ""
+
+      - name: sgrclsr
+        description: ""
+
+      - name: sgrsatt
+        description: ""
+
+      - name: shrlgpa
+        description: ""
+
+      - name: shrtgpa
+        description: ""
+
+      - name: shrtrce
+        description: ""
+
+      - name: shrttrm
+        description: ""
+
+      - name: sorlcur
+        description: ""
+
+      - name: sorlfos
+        description: ""
+
+      - name: stvastd
+        description: ""
+
+      - name: stvatts
+        description: ""
+
+      - name: stvchrt
+        description: ""
+
+      - name: stvclas
+        description: ""
+
+      - name: stvcoll
+        description: ""
+
+      - name: stvdept
+        description: ""
+
+      - name: stvests
+        description: ""
+
+      - name: stvlevl
+        description: ""
+      
+      - name: stvmajr
+        description: "Banner major types"
+
+      - name: stvrsts
+        description: ""
+
+      - name: stvstyp
+        description: ""
+
+      - name: stvterm
+        description: ""
+
+      - name: swbtded
+        description: ""

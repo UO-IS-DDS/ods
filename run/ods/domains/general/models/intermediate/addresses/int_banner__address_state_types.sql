@@ -15,7 +15,7 @@ test_clean as (
   -- failed test sql
   where t1.state_desc not in (
                                select t2.state_desc
-                               from "ods"."banner"."stg_banner__saturn__stvstat" t2
+                               from banner_address_state_types t2
                                group by t2.state_desc
                                having count(*) > 1
                              )

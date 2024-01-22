@@ -15,7 +15,7 @@ test_clean as (
   -- failed test sql
   where t1.internal_banner_id in (
                                   select t2.internal_banner_id
-                                  from "ods"."banner"."int_banner__entities__filtered_to__persons" t2
+                                  from "ods"."banner"."cln_int_banner__entities__filtered_to__persons" t2
                                  )
 )
 

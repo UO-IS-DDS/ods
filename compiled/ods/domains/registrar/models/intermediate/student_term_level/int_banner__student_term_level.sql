@@ -62,7 +62,7 @@ test_clean as (
   from banner_student_term_level_with_desc t1
   where t1.internal_banner_id in (
                                    select t2.internal_banner_id
-                                   from "ods"."banner"."mart_persons" t2
+                                   from "ods"."banner"."cln_mart_persons" t2
                                  )
 )
 

@@ -8,7 +8,6 @@ version: 2
 
 models:
   - name: stg_banner__general__goremal
-    access: private
     config:
       group: general
     description: "Banner email address"
@@ -29,7 +28,6 @@ models:
         description: "Creation/change date"
 
   - name: stg_banner__general__gtvemal
-    access: private
     config:
       group: general
     description: "Banner email address type"
@@ -42,7 +40,6 @@ models:
         description: "Email type description"
 
   - name: stg_banner__saturn__spbpers
-    access: private
     config:
       group: general
     description: "Banner person detail"
@@ -58,7 +55,6 @@ models:
         description: "Confidential indicator"
 
   - name: stg_banner__saturn__spraddr
-    access: private
     config:
       group: general
     description: "Banner address"
@@ -100,7 +96,6 @@ models:
         description: "Creation/change date"
 
   - name: stg_banner__saturn__spriden
-    access: private
     config:
       group: general
     description: "Banner ID (active and inactive/duplicate) and legal name (past and present)"
@@ -136,7 +131,6 @@ models:
         description:  "Creation/change date"
 
   - name: stg_banner__saturn__sprtele
-    access: private
     config:
       group: general
     description: "Banner telephone number"
@@ -179,7 +173,6 @@ models:
         description: "Phone country code"
 
   - name: stg_banner__saturn__stvatyp
-    access: private
     config:
       group: general
     description: "Banner address type"
@@ -191,7 +184,6 @@ models:
         description: "Address type description"
 
   - name: stg_banner__saturn__stvnatn
-    access: private
     config:
       group: general
     description: "Banner address nation"
@@ -203,7 +195,6 @@ models:
         description: "Nation description"
 
   - name: stg_banner__saturn__stvstat
-    access: private
     config:
       group: general
     description: "Banner address state/province"
@@ -217,7 +208,6 @@ models:
         description: "State/Province description"
 
   - name: stg_banner__saturn__stvtele
-    access: private
     config:
       group: general
     description: "Banner phone type"

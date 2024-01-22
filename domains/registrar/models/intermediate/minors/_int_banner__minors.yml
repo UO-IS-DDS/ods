@@ -4,7 +4,6 @@ models:
   - name: int_banner__minors
     meta:
       grain: "minor_code"
-    access: private
     config:
       group: registrar
     description: "Banner minor type"

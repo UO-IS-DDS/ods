@@ -10,7 +10,6 @@ models:
   - name: int_banner__entities__filtered_to__persons
     meta:
       grain: "internal_banner_id"
-    access: private
     config:
       group: general
     description: "Banner entities filtered to person"
@@ -138,7 +137,6 @@ models:
   - name: int_banner__person_details
     meta:
       grain: "internal_banner_id"
-    access: private
     config:
       group: general
       tags: ["banner_bug"]

@@ -4,7 +4,6 @@ models:
   - name: int_banner__student_term_level
     meta:
       grain: "internal_banner_id, term_code, level_code"
-    access: private
     config:
       group: registrar
     description: "Banner general student record for term and level"

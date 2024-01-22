@@ -10,7 +10,6 @@ models:
   - name: int_banner__email_address_types
     meta:
       grain: "email_type_code"
-    access: private
     config:
       group: general
     description: "Banner email address type"
@@ -34,7 +33,6 @@ models:
   - name: int_banner__email_addresses__filtered_to_active
     meta:
       grain: "internal_banner_id, email_type_code, email_address"
-    access: private
     config:
       group: general
       tags: ["banner_bug"]

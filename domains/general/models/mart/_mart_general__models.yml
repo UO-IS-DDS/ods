@@ -11,7 +11,6 @@ models:
   - name: mart_entities
     meta:
       grain: "internal_banner_id"
-    access: protected
     config:
       group: general
     description: "Entity"
@@ -143,7 +142,6 @@ models:
   - name: mart_persons
     meta:
       grain: "internal_banner_id"
-    access: protected
     config:
       group: general
     description: "Person"

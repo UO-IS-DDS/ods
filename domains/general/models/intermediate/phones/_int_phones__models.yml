@@ -4,7 +4,6 @@ models:
   - name: int_banner__phone_types
     meta:
       grain: "phone_type_code"
-    access: private
     config:
       group: general
     description: "Banner phone type"
@@ -28,7 +27,6 @@ models:
   - name: int_banner__phones__filtered_to_active
     meta:
       grain: "internal_banner_id, phone_type_code, phone_seqno"
-    access: private
     config:
       group: general
       tags: ["banner_bug"]

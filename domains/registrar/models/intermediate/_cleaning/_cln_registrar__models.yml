@@ -6,4 +6,4 @@ models:
     docs:
       show: false
     config:
-      tags: ["registrar","cleaning"]
+      tags: ["cleaning"]

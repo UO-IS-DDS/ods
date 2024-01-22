@@ -10,7 +10,6 @@ models:
   - name: int_banner__entities__filtered_to__organizations
     meta:
       grain: "internal_banner_id"
-    access: private
     config:
       group: general
     description: "Banner entities filtered to organzation"

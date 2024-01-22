@@ -10,7 +10,6 @@ models:
   - name: int_banner__entity__name__hist
     meta:
       grain: "internal_banner_id, updated_at"
-    access: private
     config:
       group: general
       tags: ["banner_bug"]

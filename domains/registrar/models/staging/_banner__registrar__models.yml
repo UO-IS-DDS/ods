@@ -2,7 +2,6 @@ version: 2
 
 models:
   - name: stg_banner__saturn__stvmajr
-    access: private
     config:
       group: registrar
     description: "Banner major type"
@@ -23,7 +22,6 @@ models:
         description: "Minor indicator"
 
   - name: stg_banner__saturn__sgbstdn
-    access: private
     config:
       group: registrar
     description: "Banner general student record"

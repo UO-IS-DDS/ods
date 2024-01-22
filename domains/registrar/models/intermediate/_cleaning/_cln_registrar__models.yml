@@ -1,0 +1,10 @@
+version: 2
+
+models:
+
+  - name: cln_mart_persons
+    docs:
+      show: false
+    config:
+      group: registrar
+      tags: ["cleaning"]

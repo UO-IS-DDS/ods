@@ -6,7 +6,7 @@ models:
       grain: "internal_banner_id, term_code, level_code"
     access: protected
     config:
-      group: registrar
+      tags: ["registrar"]
     description: "Banner general student record for term and level"
     columns:
       - name: internal_banner_id

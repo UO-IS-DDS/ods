@@ -6,5 +6,4 @@ models:
     docs:
       show: false
     config:
-      group: registrar
-      tags: ["cleaning"]
+      tags: ["registrar","cleaning"]

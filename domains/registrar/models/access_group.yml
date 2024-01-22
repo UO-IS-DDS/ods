@@ -1,7 +1,0 @@
-version: 2
-
-groups:
-  - name: registrar
-    owner:
-      name: Information Services DDS
-      email: lampman@uoregon.edu

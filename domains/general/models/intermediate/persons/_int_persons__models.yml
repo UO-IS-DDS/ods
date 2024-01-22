@@ -11,7 +11,7 @@ models:
     meta:
       grain: "internal_banner_id"
     config:
-      group: general
+      tags: ["general"]
     description: "Banner entities filtered to person"
     columns:
 
@@ -138,8 +138,7 @@ models:
     meta:
       grain: "internal_banner_id"
     config:
-      group: general
-      tags: ["banner_bug"]
+      tags: ["general","banner_bug"]
     description: "Banner person detail"
     columns:
 

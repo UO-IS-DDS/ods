@@ -3,7 +3,7 @@ version: 2
 models:
   - name: stg_banner__saturn__stvmajr
     config:
-      group: registrar
+      tags: ["registrar"]
     description: "Banner major type"
     columns:
       - name: major_code
@@ -23,7 +23,7 @@ models:
 
   - name: stg_banner__saturn__sgbstdn
     config:
-      group: registrar
+      tags: ["registrar"]
     description: "Banner general student record"
     columns:
       - name: internal_banner_id

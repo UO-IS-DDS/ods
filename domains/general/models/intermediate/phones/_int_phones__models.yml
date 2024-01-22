@@ -5,7 +5,7 @@ models:
     meta:
       grain: "phone_type_code"
     config:
-      group: general
+      tags: ["general"]
     description: "Banner phone type"
     columns:
       - name: phone_type_code
@@ -28,8 +28,7 @@ models:
     meta:
       grain: "internal_banner_id, phone_type_code, phone_seqno"
     config:
-      group: general
-      tags: ["banner_bug"]
+      tags: ["general","banner_bug"]
     description: "Banner active phones"
     columns:
       - name: internal_banner_id

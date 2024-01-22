@@ -5,7 +5,7 @@ models:
     meta:
       grain: "minor_code"
     config:
-      group: registrar
+      tags: ["registrar","banner_bug"]
     description: "Banner minor type"
     columns:
       - name: minor_code

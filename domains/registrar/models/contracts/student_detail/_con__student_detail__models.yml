@@ -4,10 +4,8 @@ models:
   - name: con__registrar__student_data_report
     meta:
       grain: "banner_id, term_code, level_code"
-    access: protected
     config:
-      group: registrar
-      tags: ["contract"]
+      tags: ["registrar","contract"]
     description: "Student Data Report"
     columns:
       - name: banner_id

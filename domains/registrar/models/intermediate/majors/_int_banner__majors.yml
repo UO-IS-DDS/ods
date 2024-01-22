@@ -5,8 +5,7 @@ models:
     meta:
       grain: "major_code"
     config:
-      group: registrar
-      tags: ["banner_bug"]
+      tags: ["registrar","banner_bug"]
     description: "Banner major type"
     columns:
       - name: major_code

@@ -6,12 +6,10 @@ models:
     docs:
       show: false
     config:
-      group: general
-      tags: ["cleaning"]
+      tags: ["general","cleaning"]
 
   - name: cln_int_banner__entities__filtered_to__persons
     docs:
       show: false
     config:
-      group: general
-      tags: ["cleaning"]
+      tags: ["general","cleaning"]

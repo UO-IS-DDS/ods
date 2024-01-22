@@ -9,7 +9,7 @@ exposures:
     url: https://dbdiagram.io/d/student_detail__exposure-65aa0c43ac844320ae41b443
     description: >
       Student Detail by term/level
-    tags: ['contract']
+    tags: ["registrar"]
 
     depends_on:
       - ref('mart_student_term_level')

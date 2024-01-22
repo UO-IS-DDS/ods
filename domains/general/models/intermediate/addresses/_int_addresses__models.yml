@@ -5,9 +5,8 @@ models:
   - name: int_banner__address_nation_types
     meta:
       grain: "nation_code"
-    access: private
     config:
-      group: general
+      tags: ["general"]
     description: "Banner address nation type"
     columns:
       - name: nation_code
@@ -30,8 +29,7 @@ models:
     meta:
       grain: "state_code"
     config:
-      group: general
-      tags: ["banner_bug"]
+      tags: ["general","banner_bug"]
     description: "Banner address state/province type"
     columns:
       - name: state_code
@@ -54,7 +52,7 @@ models:
     meta:
       grain: "address_type_code"
     config:
-      group: general
+      tags: ["general"]
     description: "Banner address type"
     columns:
       - name: address_type_code
@@ -77,8 +75,7 @@ models:
     meta:
       grain: "internal_banner_id, address_type_code, address_seqno"
     config:
-      group: general
-      tags: ["banner_bug"]
+      tags: ["general","banner_bug"]
     description: "Banner active address"
     columns:
       - name: internal_banner_id

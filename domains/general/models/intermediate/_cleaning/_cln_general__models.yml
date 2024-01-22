@@ -1,0 +1,11 @@
+version: 2
+
+models:
+
+  - name: cln_banner__entities__filtered_to_active
+    docs:
+      show: false
+    #access: private
+    config:
+      group: general
+      tags: ["cleaning"]

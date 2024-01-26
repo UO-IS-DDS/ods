@@ -1,1 +1,0 @@
-select * from "ods"."banner"."mart_persons"

@@ -7,6 +7,7 @@ with source as (
 renamed as (
 
     select
+    
         stvmajr_code                           as major_code,
         stvmajr_desc                           as major_desc,
         stvmajr_dept_code                      as dept_code,

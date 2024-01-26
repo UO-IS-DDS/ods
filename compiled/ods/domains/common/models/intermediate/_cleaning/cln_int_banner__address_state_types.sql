@@ -1,0 +1,1 @@
+select * from "ods"."banner"."int_banner__address_state_types"

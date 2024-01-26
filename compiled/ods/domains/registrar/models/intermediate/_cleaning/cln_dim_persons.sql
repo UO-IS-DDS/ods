@@ -1,0 +1,1 @@
+select * from "ods"."banner"."dim_persons"

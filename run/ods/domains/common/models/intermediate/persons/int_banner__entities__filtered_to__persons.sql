@@ -11,8 +11,7 @@ filter_to_person as (
 
   select 
 
-  -- banner__active_entities
-  banner__active_entities."internal_banner_id",
+    banner__active_entities."internal_banner_id",
   banner__active_entities."banner_id",
   banner__active_entities."legal_first_name",
   banner__active_entities."middle_initial",
@@ -46,7 +45,7 @@ filter_to_person as (
   banner__active_entities."pr_zip_code",
   banner__active_entities."pr_nation_code",
   banner__active_entities."pr_nation_desc",
-  banner__active_entities.organization_or_last_name as last_name
+    banner__active_entities.organization_or_last_name as last_name
     
   from banner__active_entities    
   where is_person = 'Y'

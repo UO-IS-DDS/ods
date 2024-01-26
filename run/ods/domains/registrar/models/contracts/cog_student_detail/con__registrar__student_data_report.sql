@@ -37,6 +37,10 @@ con as (
     person_addres_uo.mapr_street_line1,
     person_addres_uo.mapr_street_line2,
     person_addres_uo.mapr_street_line3,
+    person_addres_uo.mapr_city,
+    person_addres_uo.mapr_state,
+    person_addres_uo.mapr_zip,
+    person_addres_uo.mapr_nation,
 
     -- person_detail
     confidentiality_ind

@@ -1,0 +1,7 @@
+version: 2
+
+sources:
+  - name: odsmgr
+    schema: banner
+    tables:
+      - name: student

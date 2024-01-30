@@ -1,0 +1,74 @@
+name: 'ods'
+version: '1.0.0'
+config-version: 2
+ 
+profile: 'ods'
+
+# 'domains/%' are nested repos.
+# When new domains are added, these '%-path' blocks need entries added.
+# Domains are nested repos...
+#  - to-do: create install/sync script for managing coherent branching/remote
+#           across domains
+# 'models' (not under 'domains') are platform-level %-paths for DDS.
+
+model-paths:
+  - models
+  - domains/my_folder/models
+  - domains/common/models
+  - domains/registrar/models
+analysis-paths:
+  - analyses
+  - domains/my_folder/analyses
+  - domains/common/analyses
+  - domains/registrar/analyses
+test-paths: 
+  - tests
+  - domains/my_folder/tests
+  - domains/common/tests
+  - domains/registrar/tests
+seed-paths: 
+  - seeds
+  - domains/my_folder/seeds
+  - domains/common/seeds
+  - domains/registrar/seeds
+macro-paths:
+  - macros
+  - domains/my_folder/macros
+  - domains/common/macros
+  - domains/registrar/macros
+snapshot-paths:
+  - snapshots
+  - domains/my_folder/snapshots
+  - domains/common/snapshots
+  - domains/registrar/snapshots
+docs-paths:
+  - docs
+  - domains/my_folder/docs
+  - domains/common/docs
+  - domains/registrar/docs
+asset-paths:
+  - assets
+  - domains/my_folder/assets
+  - domains/common/assets
+  - domains/registrar/assets
+
+clean-targets:
+  - "target"
+  - "dbt_packages"
+
+# Marts (dims, fcts, odsmgr-refactors) are materialized as tables for fast exploration.
+# Contracts are materialized as tables for fast consumption
+# These project-level settings can be overriden in %__models.yml and/or %.sql files:
+#   - https://docs.getdbt.com/reference/model-configs
+models:
+  ods:
+    staging:
+      +materialized: view
+      +access: private
+    intermediate:
+      +materialized: view
+      +access: private
+    mart:
+      +materialized: table
+    contracts:
+      +materialized: table

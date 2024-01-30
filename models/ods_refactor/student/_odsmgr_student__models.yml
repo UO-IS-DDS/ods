@@ -1,0 +1,18 @@
+version: 2
+
+models:
+
+  - name: odsmgr_student__honors_college_flag
+    config:
+      tags: ["audit"]
+      group: registrar
+
+  - name: odsmgr_student__key_match
+    config:
+      tags: ["audit"]
+      group: registrar
+
+  - name: odsmgr_student__packed_majors1
+    config:
+      tags: ["audit"]
+      group: registrar

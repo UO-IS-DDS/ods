@@ -19,63 +19,70 @@ engine = sa.create_engine(oracle_connection_string)
     
 # Get column names and data types from all_tab_cols with schema qualification
 connection = engine.connect()
+
 # Define the Parquet root directory
 parquet_root_directory = '../../ods_parquet'
 
 # Create the root directory if it doesn't exist
 os.makedirs(parquet_root_directory, exist_ok=True)
 
-sql_list = [    
-    # General Domain
-    'select * from general.goremal',
-    'select * from general.gtvemal',
-    'select * from saturn.spbpers',
-    'select * from saturn.spraddr',
-    'select * from saturn.spriden',
-    'select * from saturn.sprtele',
-    'select * from saturn.stvatyp',
-    'select * from saturn.stvnatn',
-    'select * from saturn.stvstat',
-    'select * from saturn.stvtele',
-    
-    # Registrar Domain
-    'select * from saturn.sfrstcr',
-    'select * from saturn.sgbstdn',
-    'select * from saturn.sgradvr',
-    'select * from saturn.sgrchrt',
-    'select * from saturn.sgrclsr',
-    'select * from saturn.sgrsatt',
-    'select * from saturn.shrlgpa',
-    'select * from saturn.shrtgpa',
-    'select * from saturn.shrtrce',
-    'select * from saturn.shrttrm',
-    'select * from saturn.sorlcur',
-    'select * from saturn.sorlfos',
-    'select * from saturn.stvastd',
-    'select * from saturn.stvatts',
-    'select * from saturn.stvchrt',
-    'select * from saturn.stvclas',
-    'select * from saturn.stvcoll',
-    'select * from saturn.stvdept',
-    'select * from saturn.stvests',
-    'select * from saturn.stvlevl',
-    'select * from saturn.stvmajr',
-    'select * from saturn.stvrsts',
-    'select * from saturn.stvstyp',
-    'select * from saturn.stvterm',
-    'select * from saturn.sfbetrm',
-    'select * from saturn.swbtded']
+# List to store SQL queries for tables with Date/Encoding issues
+sql_list = []
 
-# Tables with Date/Encoding issues
-for schema, table_name in [('saturn', 'spraddr'), 
-                           ('saturn', 'stvmajr')]:
+# Oracle tables to write to parquet
+for schema, table_name in [
+                           # General Domain
+                           ('general','goremal',),
+                           ('general','gtvemal',),
+                           ('saturn', 'spbpers',),
+                           ('saturn', 'spraddr',),
+                           ('saturn', 'spriden',),
+                           ('saturn', 'sprtele',),
+                           ('saturn', 'stvatyp',),
+                           ('saturn', 'stvnatn',),
+                           ('saturn', 'stvstat',),
+                           ('saturn', 'stvtele',),
+                           
+                           # Registrar Domain
+                           ('saturn','sfrstcr'),
+                           ('saturn','sgbstdn'),
+                           ('saturn','sgradvr'),
+                           ('saturn','sgrchrt'),
+                           ('saturn','sgrclsr'),
+                           ('saturn','sgrsatt'),
+                           ('saturn','shrlgpa'),
+                           ('saturn','shrtgpa'),
+                           ('saturn','shrtrce'),
+                           ('saturn','shrttrm'),
+                           ('saturn','sorlcur'),
+                           ('saturn','sorlfos'),
+                           ('saturn','stvastd'),
+                           ('saturn','stvatts'),
+                           ('saturn','stvchrt'),
+                           ('saturn','stvclas'),
+                           ('saturn','stvcoll'),
+                           ('saturn','stvdept'),
+                           ('saturn','stvests'),
+                           ('saturn','stvlevl'),
+                           ('saturn','stvmajr'),
+                           ('saturn','stvrsts'),
+                           ('saturn','stvstyp'),
+                           ('saturn','stvterm'),
+                           ('saturn','sfbetrm'),
+                           ('saturn','swbtded')
+						  ]:
     
 
-    query = sa.text(f"SELECT column_name, data_type FROM all_tab_cols WHERE owner = UPPER('{schema}') AND table_name = UPPER('{table_name}') order by column_id")
+    query = sa.text(f" SELECT t.column_name, t.data_type "
+                    f" FROM all_tab_cols t"
+                    f" WHERE owner = UPPER('{schema}') "
+                    f"   AND table_name = UPPER('{table_name}') "
+                    f"   AND t.NUM_DISTINCT > 0 "
+                    f"   AND t.COLUMN_NAME NOT LIKE '%_SURROGATE_ID' "
+                    f"   AND t.COLUMN_NAME NOT LIKE '%_VERSION' "
+                    f" ORDER BY column_id")
     result = connection.execute(query)
     
-    
-    columns = []
     select_columns = ""
     
     # Define a dictionary of data types to their corresponding encodings

@@ -9,9 +9,9 @@ import datetime
 # Oracle Database Connection Configuration
 oracle_username = 'lampman'
 oracle_password = '***'
-oracle_host = 'daisy-cl.uoregon.edu'
+oracle_host = 'ioepcl.uoregon.edu'
 oracle_port = '1560'
-oracle_service_name = 'ban_adh_prod'
+oracle_service_name = 'ioe_prod.uoregon.edu'
 oracle_connection_string = f'oracle+oracledb://{oracle_username}:{oracle_password}@{oracle_host}:{oracle_port}/?service_name={oracle_service_name}'
 
  # Create an SQLAlchemy engine
@@ -19,70 +19,63 @@ engine = sa.create_engine(oracle_connection_string)
     
 # Get column names and data types from all_tab_cols with schema qualification
 connection = engine.connect()
-
 # Define the Parquet root directory
 parquet_root_directory = '../../ods_parquet'
 
 # Create the root directory if it doesn't exist
 os.makedirs(parquet_root_directory, exist_ok=True)
 
-# List to store SQL queries for tables with Date/Encoding issues
-sql_list = []
+sql_list = [    
+    # General Domain
+    #'select * from general.goremal',
+    #'select * from general.gtvemal',
+    #'select * from saturn.spbpers',
+    #'select * from saturn.spraddr'
+    #'select * from saturn.spriden',
+    #'select * from saturn.sprtele',
+    #'select * from saturn.stvatyp',
+    #'select * from saturn.stvnatn',
+    #'select * from saturn.stvstat',
+    #'select * from saturn.stvtele',
+    
+    # Registrar Domain
+    #'select * from saturn.sfrstcr',
+    #'select * from saturn.sgbstdn',
+    #'select * from saturn.sgradvr',
+    #'select * from saturn.sgrchrt',
+    #'select * from saturn.sgrclsr',
+    #'select * from saturn.sgrsatt',
+    #'select * from saturn.shrlgpa',
+    #'select * from saturn.shrtgpa',
+    #'select * from saturn.shrtrce',
+    #'select * from saturn.shrttrm',
+    #'select * from saturn.sorlcur',
+    #'select * from saturn.sorlfos',
+    #'select * from saturn.stvastd',
+    #'select * from saturn.stvatts',
+    #'select * from saturn.stvchrt',
+    #'select * from saturn.stvclas',
+    #'select * from saturn.stvcoll',
+    #'select * from saturn.stvdept',
+    #'select * from saturn.stvests',
+    #'select * from saturn.stvlevl',
+    #'select * from saturn.stvmajr',
+    #'select * from saturn.stvrsts',
+    #'select * from saturn.stvstyp',
+    #'select * from saturn.stvterm',
+    #'select * from saturn.sfbetrm',
+    #'select * from saturn.swbtded'
+    ]
 
-# Oracle tables to write to parquet
-for schema, table_name in [
-                           # General Domain
-                           ('general','goremal',),
-                           ('general','gtvemal',),
-                           ('saturn', 'spbpers',),
-                           ('saturn', 'spraddr',),
-                           ('saturn', 'spriden',),
-                           ('saturn', 'sprtele',),
-                           ('saturn', 'stvatyp',),
-                           ('saturn', 'stvnatn',),
-                           ('saturn', 'stvstat',),
-                           ('saturn', 'stvtele',),
-                           
-                           # Registrar Domain
-                           ('saturn','sfrstcr'),
-                           ('saturn','sgbstdn'),
-                           ('saturn','sgradvr'),
-                           ('saturn','sgrchrt'),
-                           ('saturn','sgrclsr'),
-                           ('saturn','sgrsatt'),
-                           ('saturn','shrlgpa'),
-                           ('saturn','shrtgpa'),
-                           ('saturn','shrtrce'),
-                           ('saturn','shrttrm'),
-                           ('saturn','sorlcur'),
-                           ('saturn','sorlfos'),
-                           ('saturn','stvastd'),
-                           ('saturn','stvatts'),
-                           ('saturn','stvchrt'),
-                           ('saturn','stvclas'),
-                           ('saturn','stvcoll'),
-                           ('saturn','stvdept'),
-                           ('saturn','stvests'),
-                           ('saturn','stvlevl'),
-                           ('saturn','stvmajr'),
-                           ('saturn','stvrsts'),
-                           ('saturn','stvstyp'),
-                           ('saturn','stvterm'),
-                           ('saturn','sfbetrm'),
-                           ('saturn','swbtded')
-						  ]:
+# Tables with Date/Encoding issues
+for schema, table_name in [('saturn', 'spraddr')]:
     
 
-    query = sa.text(f" SELECT t.column_name, t.data_type "
-                    f" FROM all_tab_cols t"
-                    f" WHERE owner = UPPER('{schema}') "
-                    f"   AND table_name = UPPER('{table_name}') "
-                    f"   AND t.NUM_DISTINCT > 0 "
-                    f"   AND t.COLUMN_NAME NOT LIKE '%_SURROGATE_ID' "
-                    f"   AND t.COLUMN_NAME NOT LIKE '%_VERSION' "
-                    f" ORDER BY column_id")
+    query = sa.text(f"SELECT column_name, data_type FROM all_tab_cols WHERE owner = UPPER('{schema}') AND table_name = UPPER('{table_name}') order by column_id")
     result = connection.execute(query)
     
+    
+    columns = []
     select_columns = ""
     
     # Define a dictionary of data types to their corresponding encodings
@@ -104,20 +97,33 @@ for schema, table_name in [
             select_columns += f" case when {column_name} is not null and {column_name} < to_date('01-JAN-1000','DD-MON-YYYY') then to_date('01-JAN-1000','DD-MON-YYYY') end as {column_name},"
         else:
             select_columns += f" {column_name}, "
+    select_query = ""
     if select_columns.endswith(","):
       select_columns = select_columns[:-1]
-    select_query = f"SELECT {select_columns} from {schema}.{table_name}"
-    sql_list.append(select_query)
+    sql_list.append(f"select {select_columns} from {schema}.{table_name} where mod(spraddr_surrogate_id, 8) = 0")
+    sql_list.append(f"select {select_columns} from {schema}.{table_name} where mod(spraddr_surrogate_id, 8) = 1")
+    sql_list.append(f"select {select_columns} from {schema}.{table_name} where mod(spraddr_surrogate_id, 8) = 2")
+    sql_list.append(f"select {select_columns} from {schema}.{table_name} where mod(spraddr_surrogate_id, 8) = 3")
+    sql_list.append(f"select {select_columns} from {schema}.{table_name} where mod(spraddr_surrogate_id, 8) = 4")
+    sql_list.append(f"select {select_columns} from {schema}.{table_name} where mod(spraddr_surrogate_id, 8) = 5")
+    sql_list.append(f"select {select_columns} from {schema}.{table_name} where mod(spraddr_surrogate_id, 8) = 6")
+    sql_list.append(f"select {select_columns} from {schema}.{table_name} where mod(spraddr_surrogate_id, 8) = 7")
 
 
 # Chunk Size for Reading Data
 chunk_size = 500000
 
 def process_query(sql):
-    from_position = sql.find("from")
-    if from_position != -1:
-      table_name = sql[from_position + len("FROM"):].strip()
-    # Extract table name from SQL
+    # Convert the SQL string to lowercase for case-insensitive search
+    sql_lower = sql.lower()
+
+    # Find the position of 'from' and 'where'
+    from_position = sql_lower.find(" from ")
+    where_position = sql_lower.find(" where ")
+
+    if from_position != -1 and where_position != -1:
+        # Extract the table name between 'from' and 'where'
+        table_name = sql[from_position + len(" from "):where_position].strip()
     
     print (f"Starting to process {table_name}")
     
@@ -126,7 +132,8 @@ def process_query(sql):
     os.makedirs(table_directory, exist_ok=True)
     
     for chunk in pd.read_sql(sql, engine, chunksize=chunk_size):
-        chunk_file_name = f"{table_name}_{chunk_number}.parquet"
+        timestamp = datetime.datetime.now().strftime("%H%M%S_%f")
+        chunk_file_name = f"{table_name}_{chunk_number}_{timestamp}.parquet"
         chunk_file_path = os.path.join(table_directory, chunk_file_name)
         print(f"Saving chunk {chunk_number} in directory {table_name}")
         
@@ -136,7 +143,7 @@ def process_query(sql):
 
 if __name__ == '__main__':
 
-    max_processes = 6
+    max_processes = 8
     with ProcessPoolExecutor(max_processes) as executor:
         futures = [executor.submit(process_query, sql) for i, sql in enumerate(sql_list)]
     for future in futures:

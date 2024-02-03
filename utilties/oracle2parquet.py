@@ -25,52 +25,49 @@ parquet_root_directory = '../../ods_parquet'
 # Create the root directory if it doesn't exist
 os.makedirs(parquet_root_directory, exist_ok=True)
 
-sql_list = [    
-    # General Domain
-    #'select * from general.goremal',
-    #'select * from general.gtvemal',
-    #'select * from saturn.spbpers',
-    #'select * from saturn.spraddr'
-    #'select * from saturn.spriden',
-    #'select * from saturn.sprtele',
-    #'select * from saturn.stvatyp',
-    #'select * from saturn.stvnatn',
-    #'select * from saturn.stvstat',
-    #'select * from saturn.stvtele',
-    
-    # Registrar Domain
-    #'select * from saturn.sfrstcr',
-    #'select * from saturn.sgbstdn',
-    #'select * from saturn.sgradvr',
-    #'select * from saturn.sgrchrt',
-    #'select * from saturn.sgrclsr',
-    #'select * from saturn.sgrsatt',
-    #'select * from saturn.shrlgpa',
-    #'select * from saturn.shrtgpa',
-    #'select * from saturn.shrtrce',
-    #'select * from saturn.shrttrm',
-    #'select * from saturn.sorlcur',
-    #'select * from saturn.sorlfos',
-    #'select * from saturn.stvastd',
-    #'select * from saturn.stvatts',
-    #'select * from saturn.stvchrt',
-    #'select * from saturn.stvclas',
-    #'select * from saturn.stvcoll',
-    #'select * from saturn.stvdept',
-    #'select * from saturn.stvests',
-    #'select * from saturn.stvlevl',
-    #'select * from saturn.stvmajr',
-    #'select * from saturn.stvrsts',
-    #'select * from saturn.stvstyp',
-    #'select * from saturn.stvterm',
-    #'select * from saturn.sfbetrm',
-    #'select * from saturn.swbtded'
-    ]
+sql_list = []
 
 # Tables with Date/Encoding issues
-for schema, table_name in [('saturn', 'spraddr')]:
+for schema, table_name in [('saturn','spraddr'),
+                           ('general','goremal'),
+                           ('saturn','spbpers'),
+                           ('saturn','spraddr'),
+                           ('saturn','spriden'),
+                           ('saturn','sprtele'),
+                           ('saturn','sfrstcr'),
+                           ('saturn','sgbstdn'),
+                           ('saturn','sgradvr'),
+                           ('saturn','sgrchrt'),
+                           ('saturn','shrlgpa'),
+                           ('saturn','sgrsatt'),
+                           ('saturn','shrtgpa'),
+                           ('saturn','shrtrce'),
+                           ('saturn','shrttrm'),
+                           ('saturn','sorlcur'),
+                           ('saturn','sorlfos'),
+                           ('saturn','sfbetrm'),
+                           ('general','gtvemal'),
+                           ('saturn','stvatyp'),
+                           ('saturn','stvnatn'),
+                           ('saturn','stvstat'),
+                           ('saturn','stvtele'),
+                           ('saturn','sgrclsr'),
+                           ('saturn','stvastd'),
+                           ('saturn','stvatts'),
+                           ('saturn','stvchrt'),
+                           ('saturn','stvclas'),
+                           ('saturn','stvcoll'),
+                           ('saturn','stvdept'),
+                           ('saturn','stvests'),
+                           ('saturn','stvlevl'),
+                           ('saturn','stvmajr'),
+                           ('saturn','stvrsts'),
+                           ('saturn','stvstyp'),
+                           ('saturn','stvterm'),
+                           ('saturn','sfbetrm'),
+                           ('saturn','swbtded'),
+                          ]:
     
-
     query = sa.text(f"SELECT column_name, data_type FROM all_tab_cols WHERE owner = UPPER('{schema}') AND table_name = UPPER('{table_name}') order by column_id")
     result = connection.execute(query)
     
@@ -100,14 +97,14 @@ for schema, table_name in [('saturn', 'spraddr')]:
     select_query = ""
     if select_columns.endswith(","):
       select_columns = select_columns[:-1]
-    sql_list.append(f"select {select_columns} from {schema}.{table_name} where mod(spraddr_surrogate_id, 8) = 0")
-    sql_list.append(f"select {select_columns} from {schema}.{table_name} where mod(spraddr_surrogate_id, 8) = 1")
-    sql_list.append(f"select {select_columns} from {schema}.{table_name} where mod(spraddr_surrogate_id, 8) = 2")
-    sql_list.append(f"select {select_columns} from {schema}.{table_name} where mod(spraddr_surrogate_id, 8) = 3")
-    sql_list.append(f"select {select_columns} from {schema}.{table_name} where mod(spraddr_surrogate_id, 8) = 4")
-    sql_list.append(f"select {select_columns} from {schema}.{table_name} where mod(spraddr_surrogate_id, 8) = 5")
-    sql_list.append(f"select {select_columns} from {schema}.{table_name} where mod(spraddr_surrogate_id, 8) = 6")
-    sql_list.append(f"select {select_columns} from {schema}.{table_name} where mod(spraddr_surrogate_id, 8) = 7")
+    sql_list.append(f"select {select_columns} from {schema}.{table_name} where mod({table_name}_surrogate_id, 8) = 0")
+    sql_list.append(f"select {select_columns} from {schema}.{table_name} where mod({table_name}_surrogate_id, 8) = 1")
+    sql_list.append(f"select {select_columns} from {schema}.{table_name} where mod({table_name}_surrogate_id, 8) = 2")
+    sql_list.append(f"select {select_columns} from {schema}.{table_name} where mod({table_name}_surrogate_id, 8) = 3")
+    sql_list.append(f"select {select_columns} from {schema}.{table_name} where mod({table_name}_surrogate_id, 8) = 4")
+    sql_list.append(f"select {select_columns} from {schema}.{table_name} where mod({table_name}_surrogate_id, 8) = 5")
+    sql_list.append(f"select {select_columns} from {schema}.{table_name} where mod({table_name}_surrogate_id, 8) = 6")
+    sql_list.append(f"select {select_columns} from {schema}.{table_name} where mod({table_name}_surrogate_id, 8) = 7")
 
 
 # Chunk Size for Reading Data

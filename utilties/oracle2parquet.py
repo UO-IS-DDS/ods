@@ -67,7 +67,7 @@ for index, row in banner_df.iterrows():
     select_query = ""
     if select_columns.endswith(","):
       select_columns = select_columns[:-1]
-    if pd.isna(table_key):
+    if table_key == 'none':
         sql_list.append(f"select {select_columns} from {schema}.{table_name}")
     else:
         sql_list.append(f"select {select_columns} from {schema}.{table_name} where mod({table_key}, 8) = 0")

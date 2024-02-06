@@ -76,7 +76,8 @@ for index, row in banner_df.iterrows():
         sql_list.append(f"select {select_columns} from {schema}.{table_name} where mod({table_key}, 8) = 5")
         sql_list.append(f"select {select_columns} from {schema}.{table_name} where mod({table_key}, 8) = 6")
         sql_list.append(f"select {select_columns} from {schema}.{table_name} where mod({table_key}, 8) = 7")
-
+    else:
+        sql_list.append(f"select {select_columns} from {schema}.{table_name}")
 
 # Chunk Size for Reading Data
 chunk_size = 500000

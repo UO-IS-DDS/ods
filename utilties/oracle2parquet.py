@@ -34,11 +34,11 @@ sql_list = []
 # Loop through Banner tables in manifest
 for index, row in banner_df.iterrows():
     
-    schema     = row[0]
-    table_name = row[1]
-    table_key  = row[2]
+    schema     = row['schema']
+    table_name = row['table_name']
+    table_key  = row['table_key']
     
-    query = sa.text(f"SELECT column_name, data_type FROM all_tab_cols WHERE owner = UPPER('{schema}') AND table_name = UPPER('{table_name}') order by column_id")
+    query = sa.text(f"SELECT column_name, data_type FROM dba_tab_columns WHERE owner = UPPER('{schema}') AND table_name = UPPER('{table_name}') order by column_id")
     result = connection.execute(query)
     
     
@@ -54,8 +54,8 @@ for index, row in banner_df.iterrows():
                        'TIMESTAMP(6)',
                        'TIMESTAMP(9)']
     
-    for row in result:
-        column_name, data_type = row
+    for rec in result:
+        column_name, data_type = rec
         # Handle data types in encoding_mapping by casting to the specified encoding
         if data_type in string_datatypes:
             select_columns += f" convert({column_name}, 'UTF8', 'AL32UTF8') as {column_name},"
@@ -68,11 +68,11 @@ for index, row in banner_df.iterrows():
     if select_columns.endswith(","):
       select_columns = select_columns[:-1]
     if table_key == 'none':
-        sql_list.append(f"select {select_columns} from {schema}.{table_name}")
+        sql_list.append(f"select {select_columns} from {schema}.{table_name} where 1=1")
     else:
         for i in range(8):
             sql_list.append(f"select {select_columns} from {schema}.{table_name} where mod({table_key}, 8) = {i}")
-
+    
 # Chunk Size for Reading Data
 chunk_size = 500000
 

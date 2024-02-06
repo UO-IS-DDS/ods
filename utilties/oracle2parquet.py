@@ -70,14 +70,8 @@ for index, row in banner_df.iterrows():
     if table_key == 'none':
         sql_list.append(f"select {select_columns} from {schema}.{table_name}")
     else:
-        sql_list.append(f"select {select_columns} from {schema}.{table_name} where mod({table_key}, 8) = 0")
-        sql_list.append(f"select {select_columns} from {schema}.{table_name} where mod({table_key}, 8) = 1")
-        sql_list.append(f"select {select_columns} from {schema}.{table_name} where mod({table_key}, 8) = 2")
-        sql_list.append(f"select {select_columns} from {schema}.{table_name} where mod({table_key}, 8) = 3")
-        sql_list.append(f"select {select_columns} from {schema}.{table_name} where mod({table_key}, 8) = 4")
-        sql_list.append(f"select {select_columns} from {schema}.{table_name} where mod({table_key}, 8) = 5")
-        sql_list.append(f"select {select_columns} from {schema}.{table_name} where mod({table_key}, 8) = 6")
-        sql_list.append(f"select {select_columns} from {schema}.{table_name} where mod({table_key}, 8) = 7")
+        for i in range(8):
+            sql_list.append(f"select {select_columns} from {schema}.{table_name} where mod({table_key}, 8) = {i}")
 
 # Chunk Size for Reading Data
 chunk_size = 500000

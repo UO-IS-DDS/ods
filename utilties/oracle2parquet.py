@@ -67,7 +67,9 @@ for index, row in banner_df.iterrows():
     select_query = ""
     if select_columns.endswith(","):
       select_columns = select_columns[:-1]
-    if table_key:
+    if pd.isna(table_key):
+        sql_list.append(f"select {select_columns} from {schema}.{table_name}")
+    else:
         sql_list.append(f"select {select_columns} from {schema}.{table_name} where mod({table_key}, 8) = 0")
         sql_list.append(f"select {select_columns} from {schema}.{table_name} where mod({table_key}, 8) = 1")
         sql_list.append(f"select {select_columns} from {schema}.{table_name} where mod({table_key}, 8) = 2")
@@ -76,8 +78,6 @@ for index, row in banner_df.iterrows():
         sql_list.append(f"select {select_columns} from {schema}.{table_name} where mod({table_key}, 8) = 5")
         sql_list.append(f"select {select_columns} from {schema}.{table_name} where mod({table_key}, 8) = 6")
         sql_list.append(f"select {select_columns} from {schema}.{table_name} where mod({table_key}, 8) = 7")
-    else:
-        sql_list.append(f"select {select_columns} from {schema}.{table_name}")
 
 # Chunk Size for Reading Data
 chunk_size = 500000

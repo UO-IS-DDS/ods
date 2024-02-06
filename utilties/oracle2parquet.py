@@ -22,51 +22,21 @@ connection = engine.connect()
 # Define the Parquet root directory
 parquet_root_directory = '../../ods_parquet'
 
+# Define the Banner Tables manifest directory
+banner_manifest_path = 'utilties/banner_tables.csv'
+banner_df = pd.read_csv(banner_manifest_path)
+
 # Create the root directory if it doesn't exist
 os.makedirs(parquet_root_directory, exist_ok=True)
 
 sql_list = []
 
-# Tables with Date/Encoding issues
-for schema, table_name in [('saturn','spraddr'),
-                           ('general','goremal'),
-                           ('saturn','spbpers'),
-                           ('saturn','spraddr'),
-                           ('saturn','spriden'),
-                           ('saturn','sprtele'),
-                           ('saturn','sfrstcr'),
-                           ('saturn','sgbstdn'),
-                           ('saturn','sgradvr'),
-                           ('saturn','sgrchrt'),
-                           ('saturn','shrlgpa'),
-                           ('saturn','sgrsatt'),
-                           ('saturn','shrtgpa'),
-                           ('saturn','shrtrce'),
-                           ('saturn','shrttrm'),
-                           ('saturn','sorlcur'),
-                           ('saturn','sorlfos'),
-                           ('saturn','sfbetrm'),
-                           ('general','gtvemal'),
-                           ('saturn','stvatyp'),
-                           ('saturn','stvnatn'),
-                           ('saturn','stvstat'),
-                           ('saturn','stvtele'),
-                           ('saturn','sgrclsr'),
-                           ('saturn','stvastd'),
-                           ('saturn','stvatts'),
-                           ('saturn','stvchrt'),
-                           ('saturn','stvclas'),
-                           ('saturn','stvcoll'),
-                           ('saturn','stvdept'),
-                           ('saturn','stvests'),
-                           ('saturn','stvlevl'),
-                           ('saturn','stvmajr'),
-                           ('saturn','stvrsts'),
-                           ('saturn','stvstyp'),
-                           ('saturn','stvterm'),
-                           ('saturn','sfbetrm'),
-                           ('saturn','swbtded'),
-                          ]:
+# Loop through Banner tables in manifest
+for index, row in banner_df.iterrows():
+    
+    schema     = row[0]
+    table_name = row[1]
+    table_key  = row[2]
     
     query = sa.text(f"SELECT column_name, data_type FROM all_tab_cols WHERE owner = UPPER('{schema}') AND table_name = UPPER('{table_name}') order by column_id")
     result = connection.execute(query)
@@ -97,14 +67,15 @@ for schema, table_name in [('saturn','spraddr'),
     select_query = ""
     if select_columns.endswith(","):
       select_columns = select_columns[:-1]
-    sql_list.append(f"select {select_columns} from {schema}.{table_name} where mod({table_name}_surrogate_id, 8) = 0")
-    sql_list.append(f"select {select_columns} from {schema}.{table_name} where mod({table_name}_surrogate_id, 8) = 1")
-    sql_list.append(f"select {select_columns} from {schema}.{table_name} where mod({table_name}_surrogate_id, 8) = 2")
-    sql_list.append(f"select {select_columns} from {schema}.{table_name} where mod({table_name}_surrogate_id, 8) = 3")
-    sql_list.append(f"select {select_columns} from {schema}.{table_name} where mod({table_name}_surrogate_id, 8) = 4")
-    sql_list.append(f"select {select_columns} from {schema}.{table_name} where mod({table_name}_surrogate_id, 8) = 5")
-    sql_list.append(f"select {select_columns} from {schema}.{table_name} where mod({table_name}_surrogate_id, 8) = 6")
-    sql_list.append(f"select {select_columns} from {schema}.{table_name} where mod({table_name}_surrogate_id, 8) = 7")
+    if table_key:
+        sql_list.append(f"select {select_columns} from {schema}.{table_name} where mod({table_key}, 8) = 0")
+        sql_list.append(f"select {select_columns} from {schema}.{table_name} where mod({table_key}, 8) = 1")
+        sql_list.append(f"select {select_columns} from {schema}.{table_name} where mod({table_key}, 8) = 2")
+        sql_list.append(f"select {select_columns} from {schema}.{table_name} where mod({table_key}, 8) = 3")
+        sql_list.append(f"select {select_columns} from {schema}.{table_name} where mod({table_key}, 8) = 4")
+        sql_list.append(f"select {select_columns} from {schema}.{table_name} where mod({table_key}, 8) = 5")
+        sql_list.append(f"select {select_columns} from {schema}.{table_name} where mod({table_key}, 8) = 6")
+        sql_list.append(f"select {select_columns} from {schema}.{table_name} where mod({table_key}, 8) = 7")
 
 
 # Chunk Size for Reading Data

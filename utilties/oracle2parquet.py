@@ -33,7 +33,8 @@ sql_list = []
 
 # Loop through Banner tables in manifest
 for index, row in banner_df.iterrows():
-    
+    stat_count = row['count']
+    domain     = row['domain']
     schema     = row['schema']
     table_name = row['table_name']
     table_key  = row['table_key']

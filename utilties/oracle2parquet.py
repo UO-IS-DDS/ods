@@ -62,7 +62,12 @@ for index, row in banner_df.iterrows():
             select_columns += f" convert({column_name}, 'UTF8', 'AL32UTF8') as {column_name},"
         elif data_type in date_datatypes:
             # Handle date transformation - floor non-null dates to 1/1/1000
-            select_columns += f" case when {column_name} is not null and {column_name} < to_date('01-JAN-1000','DD-MON-YYYY') then to_date('01-JAN-1000','DD-MON-YYYY') end as {column_name},"
+            
+            
+            select_columns += (f" case when {column_name} is not null and {column_name} < to_date('01-JAN-1000','DD-MON-YYYY')"
+                               f"   then to_date('01-JAN-1000','DD-MON-YYYY')"
+                               f"   else {column_name}"
+                               f" end as {column_name},")
         else:
             select_columns += f" {column_name}, "
     select_query = ""

@@ -8,10 +8,10 @@ import datetime
 
 # Oracle Database Connection Configuration
 oracle_username = 'lampman'
-oracle_password = '***'
-oracle_host = 'ioepcl.uoregon.edu'
+oracle_password = ''
+oracle_host = 'daisy-cl.uoregon.edu'
 oracle_port = '1560'
-oracle_service_name = 'ioe_prod.uoregon.edu'
+oracle_service_name = 'ban_adh_prod'
 oracle_connection_string = f'oracle+oracledb://{oracle_username}:{oracle_password}@{oracle_host}:{oracle_port}/?service_name={oracle_service_name}'
 
  # Create an SQLAlchemy engine
@@ -32,52 +32,8 @@ os.makedirs(parquet_root_directory, exist_ok=True)
 sql_list = []
 
 # Loop through Banner tables in manifest
-for index, row in banner_df.iterrows():
-    stat_count = row['count']
-    domain     = row['domain']
-    schema     = row['schema']
-    table_name = row['table_name']
-    table_key  = row['table_key']
-    
-    query = sa.text(f"SELECT column_name, data_type FROM dba_tab_columns WHERE owner = UPPER('{schema}') AND table_name = UPPER('{table_name}') order by column_id")
-    result = connection.execute(query)
-    
-    
-    columns = []
-    select_columns = ""
-    
-    # Define a dictionary of data types to their corresponding encodings
-    string_datatypes = ['CHAR',
-                        'CLOB',
-                        'VARCHAR2',
-                        'RAW']
-    date_datatypes = ['DATE',
-                       'TIMESTAMP(6)',
-                       'TIMESTAMP(9)']
-    
-    for rec in result:
-        column_name, data_type = rec
-        # Handle data types in encoding_mapping by casting to the specified encoding
-        if data_type in string_datatypes:
-            select_columns += f" convert({column_name}, 'UTF8', 'AL32UTF8') as {column_name},"
-        elif data_type in date_datatypes:
-            # Handle date transformation - floor non-null dates to 1/1/1000
-            
-            
-            select_columns += (f" case when {column_name} is not null and {column_name} < to_date('01-JAN-1000','DD-MON-YYYY')"
-                               f"   then to_date('01-JAN-1000','DD-MON-YYYY')"
-                               f"   else {column_name}"
-                               f" end as {column_name},")
-        else:
-            select_columns += f" {column_name}, "
-    select_query = ""
-    if select_columns.endswith(","):
-      select_columns = select_columns[:-1]
-    if table_key == 'none':
-        sql_list.append(f"select {select_columns} from {schema}.{table_name} where 1=1")
-    else:
-        for i in range(8):
-            sql_list.append(f"select {select_columns} from {schema}.{table_name} where mod({table_key}, 8) = {i}")
+for i in range(8):
+  sql_list.append(f"select * from general.GWRDLOG where mod(GWRDLOG_pidm, 8) = {i}")
     
 # Chunk Size for Reading Data
 chunk_size = 500000

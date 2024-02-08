@@ -7,17 +7,19 @@ import datetime
 import json
 import sys
 
+# Function to load credentials, tables to rip, parquet root storage directory
 def load_config(config_name):
     with open('../config.json') as f:
         config = json.load(f)
     return config.get(config_name)
 
+# Config name (config.json) fed as argument to to oracle2parquet.py CLI call
 if len(sys.argv) != 2:
     print("Usage: python oracle2parquet.py <config_name>")
 config_name = sys.argv[1]
 config = load_config(config_name)
 if not config:
-    print(f"Config '{config_name}' not found outside repo in config.json in ../")
+    print(f"Config '{config_name}' not found in config.json in ../")
     sys.exit(1)
     
 # Oracle Database Connection Configuration
@@ -26,118 +28,147 @@ oracle_password = config['oracle_password']
 oracle_host = config['oracle_host']
 oracle_port = config['oracle_port']
 oracle_service_name = config['oracle_service_name']
-oracle_connection_string = f'oracle+oracledb://{oracle_username}:{oracle_password}@{oracle_host}:{oracle_port}/?service_name={oracle_service_name}'
+oracle_charset = config['oracle_charset']
+oracle_connection_string = (
+    f'oracle+oracledb://{oracle_username}:{oracle_password}@'
+    f'{oracle_host}:{oracle_port}/?service_name={oracle_service_name}'
+)
 
- # Create an SQLAlchemy engine
-engine = sa.create_engine(oracle_connection_string)
-    
-# Get column names and data types from all_tab_cols with schema qualification
-connection = engine.connect()
-# Define the Parquet root directory
-parquet_root_directory = config['parquet_root_directory']#'../../ods_parquet'
+# Define and load the Tables manifest
+tables_manifest_path = config['tables_manifest_path']
+tables_df = pd.read_csv(tables_manifest_path)
 
-# Define the Banner Tables manifest directory
-tables_manifest_path = config['tables_manifest_path']#'utilties/banner_tables.csv'
-banner_df = pd.read_csv(tables_manifest_path)
-
-# Create the root directory if it doesn't exist
+# Define and create the Parquet root storage directory
+parquet_root_directory = config['parquet_root_directory']
 os.makedirs(parquet_root_directory, exist_ok=True)
 
+ # Create an SQLAlchemy engine & connect
+engine = sa.create_engine(oracle_connection_string)
+connection = engine.connect()
+
+# List of SELECT statements to use for ripping
 sql_list = []
 
-# Loop through Banner tables in manifest
-for index, row in banner_df.iterrows():
+# Loop through tables in manifest
+for index, row in tables_df.iterrows():
 
+    # Table metadata from manifest
     schema     = row['schema']
     table_name = row['table_name']
     table_key  = row['table_key']
     
-    query = sa.text(f"SELECT column_name, data_type FROM dba_tab_columns WHERE owner = UPPER('{schema}') AND table_name = UPPER('{table_name}') order by column_id")
+    # Query datatypes for columns in table
+    query = sa.text(f" select column_name, data_type "
+                    f" from dba_tab_columns "
+                    f" where owner = UPPER('{schema}') "
+                    f"   and table_name = UPPER('{table_name}') "
+                    f" order by column_id")
     result = connection.execute(query)
     
-    
-    columns = []
+    # List for column portion of SELECT statement 
     select_columns = ""
     
-    # Define a dictionary of data types to their corresponding encodings
-    string_datatypes = ['CHAR',
-                        'CLOB',
-                        'VARCHAR2',
-                        'RAW']
-    date_datatypes = ['DATE',
-                       'TIMESTAMP(6)',
-                       'TIMESTAMP(9)']
+    # Problematic Oracle datatypes to handle
+    string_datatypes = ['CHAR','CLOB','VARCHAR2','RAW']
+    date_datatypes = ['DATE','TIMESTAMP(6)','TIMESTAMP(9)']
     
+    # Handling...
     for rec in result:
+        
         column_name, data_type = rec
-        # Handle data types in encoding_mapping by casting to the specified encoding
+        
+        # Conversion of strings to UTF8
+        #   note: each DB may different in charset:
+        #     SELECT * FROM NLS_DATABASE_PARAMETERS 
+        #     WHERE PARAMETER = 'NLS_CHARACTERSET';
         if data_type in string_datatypes:
-            select_columns += f" convert({column_name}, 'UTF8', 'AL32UTF8') as {column_name},"
+            select_columns += (f" convert({column_name}, "
+                               f"         'UTF8', "
+                               f"         '{oracle_charset}') as {column_name},"
+            )
+        # Date transformation - floor non-null dates to 01-JAN-1000
         elif data_type in date_datatypes:
-            # Handle date transformation - floor non-null dates to 1/1/1000
-            select_columns += (f" case when {column_name} is not null and {column_name} < to_date('01-JAN-1000','DD-MON-YYYY')"
+            select_columns += (f" case when {column_name} is not null "
+                               f"       and {column_name} < to_date('01-JAN-1000','DD-MON-YYYY')"
                                f"   then to_date('01-JAN-1000','DD-MON-YYYY')"
                                f"   else {column_name}"
                                f" end as {column_name},")
+            
+        # Grabbing the rest of the columns
         else:
             select_columns += f" {column_name}, "
-    select_query = ""
+            
+    # Stripping last comma (!Not a problem in DuckDB's superior SQL dialect)
     if select_columns.endswith(","):
       select_columns = select_columns[:-1]
+      
+    # table_key is used to split table rip into 8 sections for multi-threading
+    # table_key value should be 'none' or an indexed, non-nullable, numeric field
     if table_key == 'none':
-        sql_list.append(f"select {select_columns} from {schema}.{table_name} where 1=1")
+        sql_list.append(f" select {select_columns} "
+                        f" from {schema}.{table_name} "
+                        f" where 1=1")
     else:
         for i in range(8):
-            sql_list.append(f"select {select_columns} from {schema}.{table_name} where mod({table_key}, 8) = {i}")
+            sql_list.append(f" select {select_columns} "
+                            f" from {schema}.{table_name} "
+                            f" where mod({table_key}, 8) = {i}")
 
 connection.close()
-# Chunk Size for Reading Data
-chunk_size = 500000
 
 def process_query(sql):
 
-    # Find the position of 'from' and 'where'
+    # Crude way of getting 'file_name'.  
+    # And improvement would be passing a dict item per table with metadata
     from_position = sql.find(" from ")
     where_position = sql.find(" where ")
-
     if from_position != -1 and where_position != -1:
         # Extract the table name between 'from' and 'where'
-        table_name = sql[from_position + len(" from "):where_position].strip()
+        file_name = sql[from_position + len(" from "):where_position].strip()
     
-    csv_row = banner_df['table_name'] == table_name.split('.')[1]
-    domain     = banner_df.loc[csv_row, 'domain'].iloc[0]
-    total_rows = banner_df.loc[csv_row, 'count'].iloc[0]
+    # Metadata for domain directory storage, total_rows for % complete calculation
+    csv_row = tables_df['table_name'] == file_name.split('.')[1]
+    domain     = tables_df.loc[csv_row, 'domain'].iloc[0]
+    total_rows = tables_df.loc[csv_row, 'count'].iloc[0]
     
-    chunk_number = 0
-    table_directory = os.path.join(parquet_root_directory, domain + '/' + table_name)
+    # Creating/Emptying table_directory inside domain directory
+    table_directory = os.path.join(parquet_root_directory, domain + '/' + file_name)
     os.makedirs(table_directory, exist_ok=True)
-    
     files = os.listdir(table_directory)
-        
     for file in files:
         file_path = os.path.join(table_directory, file)
         os.remove(file_path)
     
+    # Chunking loop
+    #   Chunk Size for Reading Data
+    #     Each parquet file will contain up to chunk_size rows from one SELECT
+    #     before creating a new file
+    chunk_size = config['chunk_size']
+    chunk_number = 0
     for chunk in pd.read_sql(sql, engine, chunksize=chunk_size):
+        
+        # Saving files named unique by timestamp
         timestamp = datetime.datetime.now().strftime("%H%M%S_%f")
-        chunk_file_name = f"{table_name}_{chunk_number}_{timestamp}.parquet"
+        chunk_file_name = f"{file_name}_{chunk_number}_{timestamp}.parquet"
         chunk_file_path = os.path.join(table_directory, chunk_file_name)
+        chunk.to_parquet(chunk_file_path, index=False)
+        #print (chunk_file_path)
         
+        # Calculate % complete
         num_files = sum(1 for file in os.listdir(table_directory))
-        
         if total_rows > 500000:
             percent = round(((num_files * 500000)/total_rows) * 100)
             percent = min(percent, 100)
-            print(f"{table_name} at {percent} %")
+            print(f"{file_name} at {percent} %")
         
-        chunk.to_parquet(chunk_file_path, index=False)
         chunk_number += 1
-    print (f"Done processing {table_name}")
+    print (f"Done processing {file_name}")
 
+# Multi-threading
 if __name__ == '__main__':
     print (f"Generating SQL to run...")
-    max_processes = 8
-    with ProcessPoolExecutor(max_processes) as executor:
+    max_threads = config['max_threads']
+    with ProcessPoolExecutor(max_threads) as executor:
         futures = [executor.submit(process_query, sql) for i, sql in enumerate(sql_list)]
     for future in futures:
         future.result()

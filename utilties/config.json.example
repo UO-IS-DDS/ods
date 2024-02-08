@@ -1,0 +1,26 @@
+{
+    "ioep": {
+        "oracle_username": "lampman",
+        "oracle_password": "***",
+        "oracle_host": "ioepcl.uoregon.edu",
+        "oracle_port": "1560",
+        "oracle_service_name": "ioe_prod.uoregon.edu",
+        "oracle_charset": "AL32UTF8",
+        "parquet_root_directory": "../../ods_parquet",
+        "tables_manifest_path": "utilties/mviews.csv",
+        "chunk_size": 500000,
+        "max_threads": 8
+    },
+    "prod": {
+        "oracle_username": "lampman",
+        "oracle_password": "***",
+        "oracle_host": "daisy-cl.uoregon.edu",
+        "oracle_port": "1521",
+        "oracle_service_name": "ban_adh_prod",
+        "oracle_charset": "AL32UTF8",
+        "parquet_root_directory": "../../banner_parquet",
+        "tables_manifest_path": "path/to/banner_tables.csv",
+        "chunk_size": 500000,
+        "max_threads": 8
+    }
+}

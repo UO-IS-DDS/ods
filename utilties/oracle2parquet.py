@@ -132,7 +132,9 @@ def process_query(sql):
     total_rows = tables_df.loc[csv_row, 'count'].iloc[0]
     
     # Creating/Emptying table_directory inside domain directory
-    table_directory = os.path.join(parquet_root_directory, domain + '/' + file_name)
+    table_directory = os.path.join(parquet_root_directory, config_name + '/' + 
+                                                           domain + '/' + 
+                                                           file_name)
     os.makedirs(table_directory, exist_ok=True)
     files = os.listdir(table_directory)
     for file in files:

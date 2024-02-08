@@ -3,8 +3,8 @@ import pyarrow as pa
 import os
 import sqlalchemy as sa
 from concurrent.futures import ProcessPoolExecutor
-import threading
 import datetime
+import shutil
 
 # Oracle Database Connection Configuration
 oracle_username = 'lampman'
@@ -33,8 +33,7 @@ sql_list = []
 
 # Loop through Banner tables in manifest
 for index, row in banner_df.iterrows():
-    stat_count = row['count']
-    domain     = row['domain']
+
     schema     = row['schema']
     table_name = row['table_name']
     table_key  = row['table_key']
@@ -62,8 +61,6 @@ for index, row in banner_df.iterrows():
             select_columns += f" convert({column_name}, 'UTF8', 'AL32UTF8') as {column_name},"
         elif data_type in date_datatypes:
             # Handle date transformation - floor non-null dates to 1/1/1000
-            
-            
             select_columns += (f" case when {column_name} is not null and {column_name} < to_date('01-JAN-1000','DD-MON-YYYY')"
                                f"   then to_date('01-JAN-1000','DD-MON-YYYY')"
                                f"   else {column_name}"
@@ -78,44 +75,57 @@ for index, row in banner_df.iterrows():
     else:
         for i in range(8):
             sql_list.append(f"select {select_columns} from {schema}.{table_name} where mod({table_key}, 8) = {i}")
-    
+
+connection.close()
 # Chunk Size for Reading Data
 chunk_size = 500000
 
 def process_query(sql):
-    # Convert the SQL string to lowercase for case-insensitive search
-    sql_lower = sql.lower()
 
     # Find the position of 'from' and 'where'
-    from_position = sql_lower.find(" from ")
-    where_position = sql_lower.find(" where ")
+    from_position = sql.find(" from ")
+    where_position = sql.find(" where ")
 
     if from_position != -1 and where_position != -1:
         # Extract the table name between 'from' and 'where'
         table_name = sql[from_position + len(" from "):where_position].strip()
     
-    print (f"Starting to process {table_name}")
+    csv_row = banner_df['table_name'] == table_name.split('.')[1]
+    domain     = banner_df.loc[csv_row, 'domain'].iloc[0]
+    total_rows = banner_df.loc[csv_row, 'count'].iloc[0]
     
     chunk_number = 0
-    table_directory = os.path.join(parquet_root_directory, table_name)
+    table_directory = os.path.join(parquet_root_directory, domain + '/' + table_name)
     os.makedirs(table_directory, exist_ok=True)
+    
+    files = os.listdir(table_directory)
+        
+    for file in files:
+        file_path = os.path.join(table_directory, file)
+        os.remove(file_path)
     
     for chunk in pd.read_sql(sql, engine, chunksize=chunk_size):
         timestamp = datetime.datetime.now().strftime("%H%M%S_%f")
         chunk_file_name = f"{table_name}_{chunk_number}_{timestamp}.parquet"
         chunk_file_path = os.path.join(table_directory, chunk_file_name)
-        print(f"Saving chunk {chunk_number} in directory {table_name}")
+        
+        num_files = sum(1 for file in os.listdir(table_directory))
+        
+        if total_rows > 500000:
+            percent = round(((num_files * 500000)/total_rows) * 100)
+            percent = min(percent, 100)
+            print(f"{table_name} at {percent} %")
         
         chunk.to_parquet(chunk_file_path, index=False)
         chunk_number += 1
     print (f"Done processing {table_name}")
 
 if __name__ == '__main__':
-
+    print (f"Generating SQL to run...")
     max_processes = 8
     with ProcessPoolExecutor(max_processes) as executor:
         futures = [executor.submit(process_query, sql) for i, sql in enumerate(sql_list)]
     for future in futures:
         future.result()
     print("Data processing complete.")
-    connection.close()
+

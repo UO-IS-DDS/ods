@@ -4,14 +4,28 @@ import os
 import sqlalchemy as sa
 from concurrent.futures import ProcessPoolExecutor
 import datetime
-import shutil
+import json
+import sys
 
+def load_config(config_name):
+    with open('../config.json') as f:
+        config = json.load(f)
+    return config.get(config_name)
+
+if len(sys.argv) != 2:
+    print("Usage: python oracle2parquet.py <config_name>")
+config_name = sys.argv[1]
+config = load_config(config_name)
+if not config:
+    print(f"Config '{config_name}' not found outside repo in config.json in ../")
+    sys.exit(1)
+    
 # Oracle Database Connection Configuration
-oracle_username = 'lampman'
-oracle_password = '***'
-oracle_host = 'ioepcl.uoregon.edu'
-oracle_port = '1560'
-oracle_service_name = 'ioe_prod.uoregon.edu'
+oracle_username = config['oracle_username']
+oracle_password = config['oracle_password']
+oracle_host = config['oracle_host']
+oracle_port = config['oracle_port']
+oracle_service_name = config['oracle_service_name']
 oracle_connection_string = f'oracle+oracledb://{oracle_username}:{oracle_password}@{oracle_host}:{oracle_port}/?service_name={oracle_service_name}'
 
  # Create an SQLAlchemy engine
@@ -20,11 +34,11 @@ engine = sa.create_engine(oracle_connection_string)
 # Get column names and data types from all_tab_cols with schema qualification
 connection = engine.connect()
 # Define the Parquet root directory
-parquet_root_directory = '../../ods_parquet'
+parquet_root_directory = config['parquet_root_directory']#'../../ods_parquet'
 
 # Define the Banner Tables manifest directory
-banner_manifest_path = 'utilties/banner_tables.csv'
-banner_df = pd.read_csv(banner_manifest_path)
+tables_manifest_path = config['tables_manifest_path']#'utilties/banner_tables.csv'
+banner_df = pd.read_csv(tables_manifest_path)
 
 # Create the root directory if it doesn't exist
 os.makedirs(parquet_root_directory, exist_ok=True)

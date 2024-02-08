@@ -158,13 +158,13 @@ def process_query(sql):
         
         # Calculate % complete
         num_files = sum(1 for file in os.listdir(table_directory))
-        if total_rows > 500000:
-            percent = round(((num_files * 500000)/total_rows) * 100)
-            percent = min(percent, 100)
+        percent = round(((num_files * chunk_size)/total_rows) * 100)
+        if total_rows > chunk_size and percent < 100:
             print(f"{file_name} at {percent} %")
+        else:
+            print(f"{file_name} complete")
         
         chunk_number += 1
-    print (f"Done processing {file_name}")
 
 # Multi-threading
 if __name__ == '__main__':

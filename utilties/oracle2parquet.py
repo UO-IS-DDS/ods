@@ -117,54 +117,57 @@ for index, row in tables_df.iterrows():
 connection.close()
 
 def process_query(sql):
-
-    # Crude way of getting 'file_name'.  
-    # And improvement would be passing a dict item per table with metadata
-    from_position = sql.find(" from ")
-    where_position = sql.find(" where ")
-    if from_position != -1 and where_position != -1:
-        # Extract the table name between 'from' and 'where'
-        file_name = sql[from_position + len(" from "):where_position].strip()
-    
-    # Metadata for domain directory storage, total_rows for % complete calculation
-    csv_row = tables_df['table_name'] == file_name.split('.')[1]
-    domain     = tables_df.loc[csv_row, 'domain'].iloc[0]
-    total_rows = tables_df.loc[csv_row, 'count'].iloc[0]
-    
-    # Creating/Emptying table_directory inside domain directory
-    table_directory = os.path.join(parquet_root_directory, config_name + '/' + 
-                                                           domain + '/' + 
-                                                           file_name)
-    os.makedirs(table_directory, exist_ok=True)
-    files = os.listdir(table_directory)
-    for file in files:
-        file_path = os.path.join(table_directory, file)
-        os.remove(file_path)
-    
-    # Chunking loop
-    #   Chunk Size for Reading Data
-    #     Each parquet file will contain up to chunk_size rows from one SELECT
-    #     before creating a new file
-    chunk_size = config['chunk_size']
-    chunk_number = 0
-    for chunk in pd.read_sql(sql, engine, chunksize=chunk_size):
+    try:
+        # Crude way of getting 'file_name'.  
+        # And improvement would be passing a dict item per table with metadata
+        from_position = sql.find(" from ")
+        where_position = sql.find(" where ")
+        if from_position != -1 and where_position != -1:
+            # Extract the table name between 'from' and 'where'
+            file_name = sql[from_position + len(" from "):where_position].strip()
         
-        # Saving files named unique by timestamp
-        timestamp = datetime.datetime.now().strftime("%H%M%S_%f")
-        chunk_file_name = f"{file_name}_{chunk_number}_{timestamp}.parquet"
-        chunk_file_path = os.path.join(table_directory, chunk_file_name)
-        chunk.to_parquet(chunk_file_path, index=False)
-        #print (chunk_file_path)
+        # Metadata for domain directory storage, total_rows for % complete calculation
+        csv_row = tables_df['table_name'] == file_name.split('.')[1]
+        domain     = tables_df.loc[csv_row, 'domain'].iloc[0]
+        total_rows = tables_df.loc[csv_row, 'count'].iloc[0]
         
-        # Calculate % complete
-        num_files = sum(1 for file in os.listdir(table_directory))
-        percent = round(((num_files * chunk_size)/total_rows) * 100)
-        if total_rows > chunk_size and percent < 100:
-            print(f"{file_name} at {percent} %")
-        else:
-            print(f"{file_name} complete")
+        # Creating/Emptying table_directory inside domain directory
+        table_directory = os.path.join(parquet_root_directory, config_name + '/' + 
+                                                               domain + '/' + 
+                                                               file_name)
+        os.makedirs(table_directory, exist_ok=True)
+        files = os.listdir(table_directory)
+        for file in files:
+            file_path = os.path.join(table_directory, file)
+            os.remove(file_path)
         
-        chunk_number += 1
+        # Chunking loop
+        #   Chunk Size for Reading Data
+        #     Each parquet file will contain up to chunk_size rows from one SELECT
+        #     before creating a new file
+        chunk_size = config['chunk_size']
+        chunk_number = 0
+        for chunk in pd.read_sql(sql, engine, chunksize=chunk_size):
+            
+            # Saving files named unique by timestamp
+            timestamp = datetime.datetime.now().strftime("%H%M%S_%f")
+            chunk_file_name = f"{file_name}_{chunk_number}_{timestamp}.parquet"
+            chunk_file_path = os.path.join(table_directory, chunk_file_name)
+            chunk.to_parquet(chunk_file_path, index=False)
+            #print (chunk_file_path)
+            
+            # Calculate % complete
+            num_files = sum(1 for file in os.listdir(table_directory))
+            percent = round(((num_files * chunk_size)/total_rows) * 100)
+            if total_rows > chunk_size and percent < 100:
+                print(f"{file_name} at {percent} %")
+            else:
+                print(f"{file_name} complete")
+            
+            chunk_number += 1
+    except UnicodeDecodeError as e:
+        print (f" Unicode error - can ignore if thrown at tail end of execution.")
+        pass
 
 # Multi-threading
 if __name__ == '__main__':

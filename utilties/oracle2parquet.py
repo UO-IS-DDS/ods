@@ -1,5 +1,6 @@
 import pandas as pd
 import pyarrow as pa
+import pyarrow.parquet as pq
 import os
 import sqlalchemy as sa
 from concurrent.futures import ProcessPoolExecutor
@@ -57,60 +58,13 @@ for index, row in tables_df.iterrows():
     table_name = row['table_name']
     table_key  = row['table_key']
     
-    # Query datatypes for columns in table
-    query = sa.text(f" select column_name, data_type "
-                    f" from dba_tab_columns "
-                    f" where owner = UPPER('{schema}') "
-                    f"   and table_name = UPPER('{table_name}') "
-                    f" order by column_id")
-    result = connection.execute(query)
-    
-    # List for column portion of SELECT statement 
-    select_columns = ""
-    
-    # Problematic Oracle datatypes to handle
-    string_datatypes = ['CHAR','CLOB','VARCHAR2','RAW']
-    date_datatypes = ['DATE','TIMESTAMP(6)','TIMESTAMP(9)']
-    
-    # Handling...
-    for rec in result:
-        
-        column_name, data_type = rec
-        
-        # Conversion of strings to UTF8
-        #   note: each DB may different in charset:
-        #     SELECT * FROM NLS_DATABASE_PARAMETERS 
-        #     WHERE PARAMETER = 'NLS_CHARACTERSET';
-        if data_type in string_datatypes:
-            select_columns += (f" convert({column_name}, "
-                               f"         'UTF8', "
-                               f"         '{oracle_charset}') as {column_name},"
-            )
-        # Date transformation - floor non-null dates to 01-JAN-1000
-        elif data_type in date_datatypes:
-            select_columns += (f" case when {column_name} is not null "
-                               f"       and {column_name} < to_date('01-JAN-1000','DD-MON-YYYY')"
-                               f"   then to_date('01-JAN-1000','DD-MON-YYYY')"
-                               f"   else {column_name}"
-                               f" end as {column_name},")
-            
-        # Grabbing the rest of the columns
-        else:
-            select_columns += f" {column_name}, "
-            
-    # Stripping last comma (!Not a problem in DuckDB's superior SQL dialect)
-    if select_columns.endswith(","):
-      select_columns = select_columns[:-1]
-      
-    # table_key is used to split table rip into 8 sections for multi-threading
-    # table_key value should be 'none' or an indexed, non-nullable, numeric field
     if table_key == 'none':
-        sql_list.append(f" select {select_columns} "
+        sql_list.append(f" select * "
                         f" from {schema}.{table_name} "
                         f" where 1=1")
     else:
         for i in range(8):
-            sql_list.append(f" select {select_columns} "
+            sql_list.append(f" select * "
                             f" from {schema}.{table_name} "
                             f" where mod({table_key}, 8) = {i}")
 
@@ -147,14 +101,13 @@ def process_query(sql):
         #     before creating a new file
         chunk_size = config['chunk_size']
         chunk_number = 0
-        for chunk in pd.read_sql(sql, engine, chunksize=chunk_size):
+        for chunk in pd.read_sql(sql, engine, chunksize=chunk_size, dtype_backend="pyarrow"):
             
             # Saving files named unique by timestamp
             timestamp = datetime.datetime.now().strftime("%H%M%S_%f")
             chunk_file_name = f"{file_name}_{chunk_number}_{timestamp}.parquet"
             chunk_file_path = os.path.join(table_directory, chunk_file_name)
             chunk.to_parquet(chunk_file_path, index=False)
-            #print (chunk_file_path)
             
             # Calculate % complete
             num_files = sum(1 for file in os.listdir(table_directory))
@@ -166,12 +119,12 @@ def process_query(sql):
             
             chunk_number += 1
     except UnicodeDecodeError as e:
-        print (f" Unicode error - can ignore if thrown at tail end of execution.")
+        print ({file_name} + e)
         pass
 
 # Multi-threading
 if __name__ == '__main__':
-    print (f"Generating SQL to run...")
+
     max_threads = config['max_threads']
     with ProcessPoolExecutor(max_threads) as executor:
         futures = [executor.submit(process_query, sql) for i, sql in enumerate(sql_list)]

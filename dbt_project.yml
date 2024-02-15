@@ -3,6 +3,9 @@ version: '1.0.0'
 config-version: 2
  
 profile: 'ods'
+vars:
+  # The `start_date` variable will be accessible in all resources
+  ods_parquet: '/Users/brocklampman/Library/CloudStorage/OneDrive-UniversityOfOregon/ods_parquet/ioep'
 
 # 'domains/%' are nested repos.
 # When new domains are added, these '%-path' blocks need entries added.
@@ -11,8 +14,10 @@ profile: 'ods'
 #           across domains
 # 'models' (not under 'domains') are platform-level %-paths for DDS.
 
+
+
 model-paths:
-  - models
+  #- models
   - domains/my_folder/models
   - domains/common/models
   - domains/registrar/models
@@ -62,6 +67,9 @@ clean-targets:
 #   - https://docs.getdbt.com/reference/model-configs
 models:
   ods:
+    base:
+      +materialized: table
+      +access: private
     staging:
       +materialized: view
       +access: private
@@ -72,3 +80,4 @@ models:
       +materialized: table
     contracts:
       +materialized: table
+    

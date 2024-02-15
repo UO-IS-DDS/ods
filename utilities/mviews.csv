@@ -604,7 +604,7 @@
 4,student,saturn,stvasty,none
 532,student,saturn,stvattr,none
 216,student,saturn,stvatts,none
-14,student,saturn,stvatyp,none
+14,common,saturn,stvatyp,none
 12,student,saturn,stvbchr,none
 305,student,saturn,stvblck,none
 166,student,saturn,stvbldg,none
@@ -689,7 +689,7 @@
 14,student,saturn,stvmedi,none
 44,student,saturn,stvmeet,none
 4,student,saturn,stvmrtl,none
-259,student,saturn,stvnatn,none
+259,common,saturn,stvnatn,none
 2,student,saturn,stvncst,none
 8,student,saturn,stvneed,none
 35,student,saturn,stvorig,none
@@ -726,7 +726,7 @@
 5,student,saturn,stvsser,none
 4,student,saturn,stvssgp,none
 4,student,saturn,stvssts,none
-80,student,saturn,stvstat,none
+80,common,saturn,stvstat,none
 2,student,saturn,stvstst,none
 34,student,saturn,stvstyp,none
 558,student,saturn,stvsubj,none
@@ -737,7 +737,7 @@
 35,student,saturn,stvtcmt,none
 2,student,saturn,stvtefr,none
 24,student,saturn,stvtein,none
-24,student,saturn,stvtele,none
+24,common,saturn,stvtele,none
 11,student,saturn,stvtepr,none
 565,student,saturn,stvterm,none
 609,student,saturn,stvtesc,none
@@ -815,11 +815,11 @@
 577118,student,saturn,sorpcol,sorpcol_surrogate_id
 7915715,student,saturn,sortest,sortest_surrogate_id
 2995242,student,saturn,sortspc,sortspc_surrogate_id
-1821246,student,saturn,spbpers,spbpers_surrogate_id
-6215878,student,saturn,spraddr,spraddr_surrogate_id
+1821246,common,saturn,spbpers,spbpers_surrogate_id
+6215878,common,saturn,spraddr,spraddr_surrogate_id
 1013489,student,saturn,sprapin,sprapin_surrogate_id
-2369420,student,saturn,spriden,spriden_surrogate_id
-5142778,student,saturn,sprtele,sprtele_surrogate_id
+2369420,common,saturn,spriden,spriden_surrogate_id
+5142778,common,saturn,sprtele,sprtele_surrogate_id
 1584493,student,saturn,srbrecr,srbrecr_surrogate_id
 582216,student,saturn,srrrsrc,srrrsrc_surrogate_id
 717671,student,saturn,ssbsect,ssbsect_surrogate_id
